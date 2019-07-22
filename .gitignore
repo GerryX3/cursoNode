@@ -1,0 +1,3 @@
+ws-node.code-workspace
+**/node_modules/**
+03-bases-node/tablas/*.txt
