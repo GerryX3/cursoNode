@@ -1,0 +1,567 @@
+var deviceM = screen.width < 768 ? "-Mobile" : "-ES";
+
+$(window).on('load', function() {
+    var tipo = null;
+    var producto =  $('.pleca-nav').find('p.dft-text').text().replace(':','').replace(/\s/g,'');
+
+    if($("a.menuBene").attr('m-active'))
+        tipo = 'Beneficios';
+    else if($("a.menuServ").attr('m-active'))
+        tipo = 'Servicios'
+
+  /*  var url = window.location.href,
+        ecid = url.split('ecid')[1];
+        empresa = url.split('empresa')[1], 
+        pos = url.split('pos')[1],
+        textButton = '';
+
+    if( url.includes('ecid') ){
+
+        $('a[metrics-lid], a[tmp-metrics-lid], a[href]').each(function(){
+            textButton = $(this).text().trim();
+            if( textButton == "Solicítala" || textButton == "Solicitar en línea" || textButton == "Solicítala en línea" ){
+                
+                var lid = '',
+                    link = '',
+                    metric = '',
+                    array = new Array(),
+                    customLink = '';
+
+                    if( $(this).attr('metrics-lid') )
+                        lid = $(this).attr('metrics-lid');
+                    else if( $(this).attr('tmp-metrics-lid') )
+                        lid = $(this).attr('tmp-metrics-lid');
+                    else
+                        lid = $(this).attr('href')
+
+                    link = lid.split('?')[0],
+                    metric = lid.split('?')[1]
+                    array = metric.split('&');
+
+                    for(var i=0; i<array.length;i++ ){
+
+                        if(i == 0){
+
+                            array[i] = 'ecid='+validaString(ecid);
+
+                        }else{
+
+                            if( array[i].match('pos') ){
+                                array[i] = 'pos='+validaString(pos);
+                            }else if( array[i].match('empresa') ){
+                                array[i] = 'empresa='+validaString(empresa);
+                            }else if( array[i].match('lid=') ){
+                                array.splice( i, 1 );
+                            }
+
+                        }
+
+                    }
+
+                customLink = link+'?'+array.toString().replace(/,/g, '&');
+
+                $(this).removeAttr('metrics-lid').removeAttr('tmp-metrics-lid');
+                $(this).attr('href', customLink);
+            }
+        });  
+
+    }else{
+        console.log('no contiene ecid');
+    } */
+
+
+    new Image().src = 'https://www.facebook.com/tr?id=963037387106002&ev=ViewContent&cd[categoria]=Tarjetas_de_credito&cd[seccion]='+tipo+'&cd[producto]='+producto+'&noscript=1';
+
+
+});
+
+function validaString(string){
+
+    if( string != undefined ){
+        var newString = '';
+        if(string.includes('&')){
+        newString = string.split('&')[0];
+        newString = newString.replace('=','');
+        }else{
+            newString = string;
+            newString = newString.replace('=','');
+        }
+    }
+
+    return newString;
+}
+
+$(function () {
+
+    var cardName = window.location.href.indexOf("tarjeta-") > 0 ? window.location.href.split("tarjeta-")[1].replace("-test.html", "") : "clasica";
+    var device = screen.width < 768 ? "Mobile" : "ES";
+    var numProducto = 0
+
+    if(cardName == "oro")
+        numProducto = 222577
+    else if(cardName == "bsmart")
+        numProducto = 410251
+    else
+        numProducto = 130217
+    $('.pleca-content a.menuSoli').attr("href", "https://portal.banamex.com.mx/solicitud_tdc_v8/index.html?" + s.pageName + "-TopMenu-Acquisition-irSolicitud" +cardName + "-"  + device + "&surcursal=8082&canal=16&pos=74013&idproducto="+numProducto+"&empresa=109").attr("target","_blank");
+
+    
+    // Métrica botón servicio
+    var seccion = '';
+
+    $('.sectionM').on('mouseover', function () {
+        seccion = $(this).attr("data-section");
+    });
+
+    $('.btnInicio').on('click', function () {
+
+        s.linkTrackVars='eVar25,events';
+        s.linkTrackEvents='event30';
+        s.eVar25=s.pageName + '|' + seccion + '|BacktoTop';
+        s.events='event30';
+        s.tl(this,'o',s.pageName+'-Page Interaction');
+        metrics.reset();
+    
+    });
+
+    // Botones slider
+    $('.slick-prev').on('click', function() {
+        s.linkTrackVars='eVar25,events';
+        s.linkTrackEvents='event30';
+        s.eVar25=s.pageName+ '|Carrousel|Izquierda';
+        s.events='event30';
+        s.tl(this,'o',s.pageName+'-Page Interaction');
+        metrics.reset();
+    });
+
+    $('.slick-next').on('click', function() {
+        s.linkTrackVars='eVar25,events';
+        s.linkTrackEvents='event30';
+        s.eVar25=s.pageName+ '|Carrousel|Derecha'; 
+        s.events='event30';
+        s.tl(this,'o',s.pageName+'-Page Interaction');
+        metrics.reset();
+    });
+
+    $(".benefits-item ").each(function(i,val){
+        if ($(this).find(".dft-title-subtitle").text() == "Protección 360 Banamex") {
+           var jsonTooltip = JSON.parse($(this).find(".dft-tooltip-out").attr("data-tooltip"));
+           jsonTooltip["metrica"] = "s.tl(this,'e',s.pageName+'-TextoBottom-24092018-Information-irProteccion360-"+device+"')"
+           jsonTooltip = JSON.stringify(jsonTooltip);
+           $(this).find(".dft-tooltip-out").attr("data-tooltip",jsonTooltip)
+        }
+    })
+
+    // Menú -----------------------------------------------------------------
+function metricsMenu(opt) {
+
+    cardName = cardName.split(".")[0];
+    cardNamecard = "tarjeta-"+cardName;
+
+    s.linkTrackVars='eVar25,events';
+    s.linkTrackEvents='event30';
+    s.eVar25=s.pageName+'|MenuTarjetas|' + cardName + '|' + opt;
+    s.events='event30';
+    s.tl(this,'o',s.pageName+'-Page Interaction');
+}
+
+$('.menuBene').on('click', function () {
+    metricsMenu('Beneficios');
+});
+
+$('.menuServ').on('click', function () {
+    metricsMenu('Servicios');
+});
+
+$('.menuSoli').on('click', function () {
+    metricsMenu('Solicitud');
+});
+
+$('.menuTdc').on('click', function () {
+    metricsMenu('Tarjetas');
+});
+
+
+});
+
+function clearCad(cad) {
+    var cadAux = cad;
+    cadAux = cadAux.replace(/"/gi, "");
+    cadAux = cadAux.replace(/'/gi, "");
+    cadAux = cadAux.replace(/<script>.*<\/script>/gi, "");
+    cadAux = cadAux.replace(/</gi, "");
+    cadAux = cadAux.replace(/>/gi, "");
+    cadAux = cadAux.replace(/"%3C"/gi, "");
+    cadAux = cadAux.replace(/%3E/gi, "");
+    cadAux = cadAux.replace(/script/gi, "");
+    return cadAux
+}
+
+function getUrlVars3(f) {
+    var d = {};
+    var e = clearCad(f).replace(/[?&]+([^=&]+)=([^&]*)/gi, function (g, b, a) {
+        d[b] = a
+    });
+    return d
+}
+
+function lidMetrics(no){
+    var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    var screen = (isMobile) ? "Mobile" : "ES";
+    var url = "/"+s.pageName+"-TextoBottom-Information-"+no+"-irCitibanamex-"+screen;
+    window.open(url, '_blank');
+}
+
+function metricBtnCarr(opt) {
+    s.linkTrackVars='eVar25,events';
+    s.linkTrackEvents='event30';
+    s.eVar25=s.pageName+ '|Carrousel|' + opt;
+    s.events='event30';
+    s.tl(this,'o',s.pageName+'-Page Interaction');
+    metrics.reset();
+}
+
+$('.cargoNoRec').on('click', function() { 
+  var btnFigure = $('figure.slick-active').hasClass('open-overlay') ? "CargosNoReconocidos|MenosInformación" : "CargosNoReconocidos|MasInformación";
+  metricBtnCarr(btnFigure);
+});
+
+$('.ctrlUso').on('click', function() { 
+    var btnFigure = $('figure.slick-active').hasClass('open-overlay') ? "ControlUso|MenosInformación" : "ControlUso|MasInformación";
+    metricBtnCarr(btnFigure);
+});
+
+$('.cgosAuto').on('click', function () {
+    var btnFigure = $('figure.slick-active').hasClass('open-overlay') ? "CargosAutomaticos|MenosInformación" : "CargosAutomaticos|MasInformación";
+    metricBtnCarr(btnFigure);
+});
+
+$('.usoFraude').on('click', function () {
+    var btnFigure = $('figure.slick-active').hasClass('open-overlay') ? "UsoFraudulento|MenosInformación" : "UsoFraudulento|MasInformación";
+    metricBtnCarr(btnFigure);
+});
+
+$('.cgosRecc').on('click', function () {
+    var btnFigure = $('figure.slick-active').hasClass('open-overlay') ? "CargosRecurrentes|MenosInformación" : "CargosRecurrentes|MasInformación";
+    metricBtnCarr(btnFigure);
+});
+
+
+
+function metricsDescPdf(opt) {
+    s.linkTrackVars='eVar27,events';
+    s.linkTrackEvents='event27';
+    s.eVar27=s.pageName+'|Carrousel|' + opt;
+    s.events='event27';
+    s.tl(this,'d',s.pageName+'-Downloads');
+    metrics.reset();
+}
+
+$('.descPdf1').on('click', function () {
+    metricsDescPdf('CargosNoReconocidos|AclaracionesRoboExtravio');
+    window.open($(this).attr('data-target'));
+});
+
+$('.descPdf2').on('click', function () {
+    metricsDescPdf('ControlUso|MediosPago');
+    window.open($(this).attr('data-target'));
+});
+
+$('.descPdf3').on('click', function () {
+    metricsDescPdf('CargosAutomaticos|FormatoCargos');
+    window.open($(this).attr('data-target'));
+});
+
+$('.descPdf4').on('click', function () {
+    metricsDescPdf('CargosAutomaticos|SolicitudAclaraciones');
+    window.open($(this).attr('data-target'));
+});
+
+$('.descPdf5').on('click', function () {
+    metricsDescPdf('CargosAutomaticos|BajadeServicio');
+    window.open($(this).attr('data-target'));
+});
+
+$('.descPdf6').on('click', function () {
+    metricsDescPdf('CargosRecurrentes|FormatoCargos');
+    window.open($(this).attr('data-target'));
+});
+
+$('.descPdf7').on('click', function () {
+    metricsDescPdf('CargosRecurrentes|SolicitudAclaraciones');
+    window.open($(this).attr('data-target'));
+});
+
+$('.descPdf8').on('click', function () {
+    metricsDescPdf('CargosRecurrentes|BajadeServicio');
+    window.open($(this).attr('data-target'));
+});
+
+function metricsTrmnos(opt) {
+    s.linkTrackVars='eVar27,events';
+    s.linkTrackEvents='event27';
+    s.eVar27=s.pageName+'|Seguros|' + opt + '|TerminosCondiciones';
+    s.events='event27';
+    s.tl(this,'d',s.pageName+'-Downloads');
+    metrics.reset();
+}
+
+$('.trmnsSeg1').on('click', function () {
+    metricsTrmnos('MasterCardGlobalServiceTM');
+    window.open($(this).attr("data-target"));
+});
+
+$('.trmnsSeg2').on('click', function () {
+    metricsTrmnos('MasterSeguroDeViajesTM');
+    window.open($(this).attr("data-target"));
+});
+
+$('.trmnsSeg3').on('click', function () {
+    metricsTrmnos('ProteccionDeCompras');
+    window.open($(this).attr("data-target"));
+});
+
+$('.trmnsSeg4').on('click', function () {
+    metricsTrmnos('ServiciosDeAsistenciaDeViajes');
+    window.open($(this).attr("data-target"));
+});
+
+$('.trmnsSeg5').on('click', function () {
+    metricsTrmnos('GarantiaExtendida');
+    window.open($(this).attr("data-target"));
+});
+
+$('.trmnsSeg6').on('click', function () {
+    metricsTrmnos('MasterSeguroDeAutosTM');
+    window.open($(this).attr("data-target"));
+});
+
+$('.telefonos').on('click', function () {
+    s.linkTrackVars='eVar25,events';
+    s.linkTrackEvents='event30';
+    s.eVar25=s.pageName+'|Seguros|verTelefonos';
+    s.events='event30';
+    s.tl(this,'o',s.pageName+'-Page Interaction');
+    metrics.reset();
+});
+
+var mBancad = {
+    mobile: false,
+    init: function() {
+        
+        if (screen.width < 768) {
+            this.mobile = true;
+        }
+        $(".changeLid").click(function(e) {
+            e.preventDefault();
+            var url = $(this).attr("href");
+            url = mBancad.buildlid(url)
+            window.open(url, '_blank')
+        })
+
+        $.each($(".replace"), function(i, v) {
+            var metric = $(this).attr("metrics-interaction");
+            mBancad.mobile ? metric += "-mobile" : metric += "-ES"
+            $(this).attr("metrics-interaction", metric);
+        });
+    },
+    sendapp: function(app) {
+        var mb = ""
+        if (metrics.mobile) { mb = "-Mobile" } else { mb = "-ES" }
+        s.tl(this, 'e', s.pageName + app + mb)
+        metrics.reset()
+    },
+    buildlid: function(url) {
+        if (this.mobile) { url += "-Mobile" } else { url += "-ES" }
+        return (url)
+        }
+    }
+
+    $(".dft-tooltip-out").on("click",function(){
+
+        setTimeout(function() {
+            let selector = $("body").hasClass("navMobile") ? "footer" : "span.dft-tooltip-out";
+                $(selector).find(".dft-info__link").attr("data-href", $(selector).find(".dft-info__link").attr("href"));
+                $(selector).find(".dft-info__link").removeAttr("href");
+                $(selector).find(".dft-info__link").addClass("cursor-pointer");    
+                $(selector).find(".dft-info__link").attr("onClick", $(selector).find(".dft-info__link").attr("onClick")+ ", metricaT(event, this)");
+        }, 500);
+    });
+
+    function metricaT(event,el){
+        event.preventDefault();
+        window.open($(el).attr("data-href"));
+    }
+
+$('.cartaRec').on('click', function (e) {
+    e.preventDefault();
+    s.linkTrackVars='eVar27,events';
+    s.linkTrackEvents='event27';
+    s.eVar27=s.pageName+'|Legales|CartaReclamacionSeguros';
+    s.events='event27';
+    s.tl(this,'d',s.pageName+'-Downloads');
+
+    window.open($(this).attr("href"));
+
+    metrics.reset();
+});
+
+
+
+// bsmart -------------------------------------------------------------------
+function redesSoc (redSoc) {
+   
+    s.linkTrackVars='eVar46,events';
+    s.linkTrackEvents='event33';
+    s.eVar46=s.pageName+ '|RedesSociales|' + redSoc; 
+    s.events='event33';
+    s.tl(this,'o',s.pageName+'-Social Interactions');   
+}
+
+function btnQuestion (opt) {
+
+    s.linkTrackVars='eVar25,events';
+    s.linkTrackEvents='event30';
+    s.eVar25=s.pageName+'|MasInformacion|' + opt;
+    s.events='event30';
+    s.tl(this,'o',s.pageName+'-Page Interaction');
+
+}
+
+$('.idVig').one('mouseover', function () {
+    btnQuestion('Identificacion');
+});
+
+$('.comDom').one('mouseover', function () {
+    btnQuestion('ComprobanteDomicilio');
+});
+
+// Clasica -------------------------------------------------------------------
+
+
+
+// General -------------------------------------------------------------------
+function pdfDescarga (pdf) {
+    s.linkTrackVars='eVar27,events';
+    s.linkTrackEvents='event27';
+    s.eVar27=s.pageName+'|Descargas|' + pdf;
+    s.events='event27';
+    s.tl(this,'d',s.pageName+'-Downloads');
+}
+
+$('.pdf-contrato').on('click', function () {
+    pdfDescarga('Contrato');
+    window.open($(this).attr('data-target'));
+ });
+
+ $('.pdf-anexo').on('click', function () {
+    pdfDescarga('AnexoDeComisiones');
+    window.open($(this).attr('data-target'));
+ });
+
+ $('.pdf-folleto').on('click', function () {
+    pdfDescarga('FolletoInformativo');
+    window.open($(this).attr('data-target'));
+ });
+
+ $('.pdf-costos').on('click', function () {
+    pdfDescarga('CostosyComisiones');
+    window.open($(this).attr('data-target'));
+ });
+
+ $('.pdf-seguros').on('click', function () {
+    pdfDescarga('SegurosVISA');
+    window.open($(this).attr('data-target'));
+ });
+
+ $('.pdf-paquete').on('click', function () {
+    pdfDescarga('PaqueteCitibanamex');
+    window.open($(this).attr('data-target'));
+ });
+
+ $('.pdf-medios').on('click', function () {
+     pdfDescarga('MediosPago');
+     window.open($(this).attr('data-target'));
+ });
+ 
+ $(".options").on("click",function() {
+    if($(this).attr("metrics-interaction").indexOf("Ocultar") >= 0)
+        $(this).attr("metrics-interaction","|ServiciosCredito|MasInformacion")
+    else
+        $(this).attr("metrics-interaction","|ServiciosCredito|Ocultar")
+});
+
+$('.irServicios').on('click', function () {
+
+    var url = $(this).attr('data-target');
+
+    s.linkTrackVars='eVar25,events';
+    s.linkTrackEvents='event30';
+    s.eVar25=s.pageName+'|ConoceMasServicios|Servicios';
+    s.events='event30';
+    s.tl(this,'o',s.pageName+'-Page Interaction');
+
+    window.open(url, '_top');
+
+});
+
+function telefonos(opt) {
+
+    s.linkTrackVars='eVar25,events';
+    s.linkTrackEvents='event30';
+    s.eVar25=s.pageName+ opt; 
+    s.events='event30';
+    s.tl(this,'o',s.pageName+'-PageInteraction');
+}
+
+$('.verTelefonos').on('click', function () {
+    telefonos('|MasBeneficios|verTelefonos');
+
+});
+
+$('.verTeleConcierge').on('click', function () {
+    telefonos('|MasBeneficios|Concierge|verTelefonos');
+});
+
+$('.verTeleVip').on('click', function () {
+    telefonos('|MasBeneficios|AtencionVIP|verTelefonos');
+});
+
+$('.verTelePrestige').on('click', function () {
+    telefonos('|MasBeneficios|Prestige|verTelefonos');
+});
+
+$('.verTelePremium').on('click', function () {
+    telefonos('|MasBeneficios|Premium|verTelefonos');
+});
+
+$(".option-btn").on("click",function() {
+    if($(this).attr("metrics-interaction").indexOf("Ocultar") >= 0)
+        $(this).attr("metrics-interaction","|Mecanica|MasInformacion")
+    else
+        $(this).attr("metrics-interaction","|Mecanica|Ocultar")
+});
+
+$("[tmp-metrics-lid]").on("click", function () {
+    var deviceM = screen.width < 768 ? "-Mobile" : "-ES"
+    var link = "";
+    var urlSegments = $(this).attr("tmp-metrics-lid").split("?");
+    link = urlSegments[0] + "?lid=" + s.pageName + "-" + urlSegments[1].split("&")[0] + deviceM + urlSegments[1].substr(urlSegments[1].indexOf("&"), urlSegments[1].length - 1);
+    window.open(link, '_blank')
+})
+
+var parametros = getUrlVars3(location.href);
+var tdc = parametros["tdc"];
+$("#hero").attr("data-section", "Home"+tdc);
+$("body").attr("page-name", "MX|es|personas|tarjetas-credito|servicios-test-" + tdc);
+
+
+
+
+
+
+
+
+
+
+ 

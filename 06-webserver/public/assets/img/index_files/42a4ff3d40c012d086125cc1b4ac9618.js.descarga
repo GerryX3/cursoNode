@@ -1,0 +1,2 @@
+Bootstrapper.bindImmediate(function(){var Bootstrapper=window["Bootstrapper"];var ensightenOptions=Bootstrapper.ensightenOptions;(new Image).src="https://analytics.twitter.com/i/adsct?p_id\x3dTwitter\x26p_user_id\x3d0\x26txn_id\x3dnwc1v\x26events\x3d%5B%5B%22pageview%22%2Cnull%5D%5D\x26tw_sale_amount\x3d0\x26tw_order_quantity\x3d0";(new Image).src="//t.co/i/adsct?p_id\x3dTwitter\x26p_user_id\x3d0\x26txn_id\x3dnwc1v\x26events\x3d%5B%5B%22pageview%22%2Cnull%5D%5D\x26tw_sale_amount\x3d0\x26tw_order_quantity\x3d0"},
+2873358,598422);

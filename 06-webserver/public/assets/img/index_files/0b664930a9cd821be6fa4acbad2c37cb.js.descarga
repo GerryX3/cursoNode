@@ -1,0 +1,2 @@
+Bootstrapper.bindDOMLoaded(function(){var Bootstrapper=window["Bootstrapper"];var ensightenOptions=Bootstrapper.ensightenOptions;$.getScript("https://www.googletagmanager.com/gtag/js?id\x3dAW-813708117");window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date);gtag("config","AW-813708117");(new Image).src="https://www.facebook.com/tr?id\x3d594474080885026\x26ev\x3dPageView\x26noscript\x3d1";(new Image).src="https://www.facebook.com/tr?id\x3d594474080885026\x26ev\x3dViewContent\x26noscript\x3d1"},
+2918819,599961);

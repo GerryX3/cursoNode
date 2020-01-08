@@ -1,6 +1,9 @@
 require('./config/config');
+const mongoose = require('mongoose');
+const path = require('path');
 const express = require('express');
 const app = express();
+const Colors = require('colors/safe');
 
 const bodyParser = require('body-parser');
 
@@ -9,41 +12,18 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
 
-app.get('/usuario', function(req, res) {
-    res.json('Get Usuario');
-});
+app.use(express.static(path.resolve(__dirname, '../public')));
 
-app.post('/usuario', function(req, res) {
+app.use(require('./routes/index'));
 
-    let body = req.body;
-
-    if (body.nombre === undefined) {
-
-        res.status(400).json({
-            ok: false,
-            mensaje: 'El nombre es necesario'
-        });
-
+mongoose.connect(process.env.URLDB, { useNewUrlParser: true, useCreateIndex: true, useFindAndModify: false }, (err, resp) => {
+    if (err) {
+        throw err;
     } else {
-        res.json({
-            body
-        });
+        console.log(Colors.green('Base de datos online'));
     }
-
-});
-
-app.put('/usuario/:id', function(req, res) {
-    let id = req.params.id;
-
-    res.json({
-        id
-    });
-});
-
-app.delete('/usuario', function(req, res) {
-    res.json('Delete Usuario');
 });
 
 app.listen(process.env.PORT, () => {
-    console.log('Escuchando el puerto: ', process.env.PORT);
+    console.log(Colors.magenta('Escuchando el puerto: '), Colors.yellow(process.env.PORT));
 });

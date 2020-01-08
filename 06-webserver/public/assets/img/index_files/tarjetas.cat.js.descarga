@@ -1,0 +1,128 @@
+'use strict'
+
+$(function() {
+
+    var tarjetasProd = [ 
+        { id: 2, tarjeta: "Aadvantage" },
+        { id: 4, tarjeta: "Affinity Card" },
+        { id: 9, tarjeta: "Toluca" },
+        { id: 10, tarjeta: "La Verde" },
+        { id: 13, tarjeta: "Best Buy" },
+        { id: 14, tarjeta: "Bsmart" },
+        { id: 15, tarjeta: "Bsmart U" },
+        { id: 17, tarjeta: "Clásica" },
+        { id: 18, tarjeta: "Costco" },
+        { id: 19, tarjeta: "Martí Premium"},
+        { id: 20, tarjeta: "Martí Clásica" },
+        { id: 22, tarjeta: "Office Depot" },
+        { id: 23, tarjeta: "Platinum" },
+        { id: 24, tarjeta: "Oro" },
+        { id: 28, tarjeta: "Teletón" },
+        { id: 29, tarjeta: "The Home Depot" },
+        { id: 30, tarjeta: "Rewards" },
+        { id: 31, tarjeta: "Premier" },  
+        { id: 33, tarjeta: "Base" },
+        { id: 75, tarjeta: "Prestige" }
+    ];
+
+    var tarjetasUat = [ 
+        { id: 14, tarjeta: "Aadvantage" },
+        { id: 15, tarjeta: "Affinity Card" },
+        { id: 16, tarjeta: "Toluca" },
+        { id: 17, tarjeta: "La Verde" },
+        { id: 18, tarjeta: "Best Buy" },
+        { id: 19, tarjeta: "Bsmart" },
+        { id: 20, tarjeta: "Bsmart U" },
+        { id: 21, tarjeta: "Clásica" },
+        { id: 22, tarjeta: "Costco" },
+        { id: 24, tarjeta: "Martí Premium"},
+        { id: 54, tarjeta: "Martí Clásica" },
+        { id: 26, tarjeta: "Office Depot" },
+        { id: 27, tarjeta: "Platinum" },
+        { id: 30, tarjeta: "Oro" },
+        { id: 28, tarjeta: "Teletón" },
+        { id: 29, tarjeta: "The Home Depot" },
+        { id: 31, tarjeta: "Rewards" },
+        { id: 32, tarjeta: "Premier" },  
+        { id: 33, tarjeta: "Base" },
+        { id: 36, tarjeta: "Prestige" }
+    ];
+
+    var tarjeta, idTar, url, array;
+
+    tarjeta = $('body').attr('tarjeta');
+    url = window.location.href.indexOf("www.banamex.com");
+    array = (url > -1) ? tarjetasProd : tarjetasUat;
+
+    for (var i = 0; i < array.length; i++) {
+
+        var tar = array[i].tarjeta;
+
+        if (tar == tarjeta) { 
+            idTar = array[i].id;
+        }
+    }
+
+    var cats = new CAT();
+    // cats.getConfig().setUat('https://kio.banamex.com/framework');
+
+    cats.getById(idTar).then(function(data) {
+        setLegales(data.data);
+
+    }); 
+
+    function sinAcentos(cadena) {
+        var chars = {
+            'á': 'a',
+            'é': 'e',
+            'í': 'i',
+            'ó': 'o',
+            'ú': 'u',
+            'à': 'a',
+            'è': 'e',
+            'ì': 'i',
+            'ò': 'o',
+            'ù': 'u',
+            'ñ': 'n',
+            'Á': 'A',
+            'É': 'E',
+            'Í': 'I',
+            'Ó': 'O',
+            'Ú': 'U',
+            'À': 'A',
+            'È': 'E',
+            'Ì': 'I',
+            'Ò': 'O',
+            'Ù': 'U',
+            'Ñ': 'N'
+        };
+        var expr = /[áàéèíìóòúùñ]/ig;
+        var res = cadena.replace(expr, function (e) {
+            return chars[e];
+        });
+        return res;
+    }
+
+    function setLegales(res) {
+
+        res.id = res.id.replace(/ /g, '');
+        res.id = sinAcentos(res.id);
+
+        $('.comi-' + res.id).html(res.comi);
+        $('.cat-' + res.id).html(res.cat);
+        $('.tasa-' + res.id).html(res.tasa);
+        $('.ingreso-' + res.id).html(res.ingreso);
+        $('.fecha-' + res.id).html(res.fecha);
+        $('.fechaVIni-' + res.id).html(res.fecha);
+        $('.fechaVFin-' + res.id).html(res.fechaVigencia);
+
+    }  
+
+
+});
+
+
+
+
+
+

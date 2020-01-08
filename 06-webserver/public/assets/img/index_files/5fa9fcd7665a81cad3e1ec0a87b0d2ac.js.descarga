@@ -1,0 +1,1 @@
+Bootstrapper.bindImmediate(function(){var Bootstrapper=window["Bootstrapper"];var ensightenOptions=Bootstrapper.ensightenOptions;Bootstrapper.on("click","#mgmp_referralStatusTable.btnmgm-sendReminderBtnmgm-floatRightbutton",function(){Bootstrapper.ensEvent.trigger("SGSendReminderEvent",this)},true)},-1,-1);

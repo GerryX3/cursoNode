@@ -1,0 +1,48 @@
+var bk_results = {
+ "campaigns": [
+  {
+    "campaign": 374467,
+    "timestamp": 1565878366,
+    "categories": [
+    {
+     "categoryID": 1388012,
+     "timestamp": 1564679821
+    },
+    {
+     "categoryID": 1584822,
+     "timestamp": 1564679821
+    }
+    ]
+  },
+  {
+    "campaign": 306197,
+    "BkDmpAudienceName": "Interested+",
+    "timestamp": 1565878366,
+    "categories": [
+    {
+     "categoryID": 1310745,
+     "timestamp": 1563816061
+    },
+    {
+     "categoryID": 1375561,
+     "timestamp": 1563816004
+    }
+    ]
+  },
+  {
+    "campaign": 306198,
+    "BkDmpAudienceName": "Interested+",
+    "timestamp": 1565878366,
+    "categories": [
+    {
+     "categoryID": 1310745,
+     "timestamp": 1563816061
+    },
+    {
+     "categoryID": 1375561,
+     "timestamp": 1563816004
+    }
+    ]
+  }
+ ]
+};

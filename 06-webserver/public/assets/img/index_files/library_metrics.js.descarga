@@ -1,0 +1,1246 @@
+var leng = 'ES',
+	sendmetric,
+	timerv;
+
+function getParameterByName(name, url) {
+	if (!url) url = window.location.href;
+	name = name.replace(/[[\]]/g, '\\$&');
+	var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+		results = regex.exec(url);
+	if (!results) return null;
+	if (!results[2]) return '';
+	return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+//==================================================================================================================
+//INICIO DE LA FUNCION PARA LA AUTOMETRICA EN LOS BOTONES PARA LA APP
+setTimeout(cargatooltip(), 1000);
+function cargatooltip() {
+	var cont = 0;
+	$.each($('[data-tooltip]'), function(i, v) {
+		var content = JSON.parse($(this).attr('data-tooltip'));
+		var metricaApp = '';
+		var bandera = 0;
+		var section = '';
+		if (
+			content.name.toLowerCase() == 'app store' &&
+      (content.metrica == '' || content.metrica == undefined)
+		) {
+			content.metrica = 'homeM.sendApp("irAppstore","' + cont + '")';
+			$(this).attr('id', 'irAppstore' + cont);
+			bandera = 1;
+		}
+		if (
+			content.name.toLowerCase() == 'google play' &&
+      (content.metrica == '' || content.metrica == undefined)
+		) {
+			content.metrica = 'homeM.sendApp("irGoogleplay","' + cont + '")';
+			$(this).attr('id', 'irGoogleplay' + cont);
+			bandera = 1;
+		}
+		if (
+			content.name.toLowerCase() == 'microsoft store' &&
+      (content.metrica == '' || content.metrica == undefined)
+		) {
+			content.metrica = 'homeM.sendApp("irMicrosoftStore","' + cont + '")';
+			$(this).attr('id', 'irMicrosoftStore' + cont);
+			bandera = 1;
+		}
+		if (bandera == 1) {
+			var tool = JSON.stringify(content);
+			$(this).attr('data-tooltip', tool);
+			cont++;
+		}
+	});
+}
+//FIN DE LA FUNCION PARA LA AUTOMETRICA EN LOS BOTONES PARA LA APP
+//==================================================================================================================
+var metrics = {
+	load: function() {
+		var e;
+		var a = leng;
+		var b = $('body').attr('metrics-initial');
+		var c = $('body').attr('metrics-24');
+		if ((s.pageName = $('body').attr('page-name') && void 0 == s.pageName)) {
+			(e = location.pathname), (e = e.replace('.html', '')), (e = e.split('/'));
+			var f = 'MX';
+			$.each(e, function(a, b) {
+				'' != b && (f = f + '|' + b);
+			}),
+			(e = f);
+		} else e = s.pageName;
+		(s.channel = ''),
+		(s.prop1 = ''),
+		(s.prop2 = ''),
+		(s.prop3 = ''),
+		(s.prop10 = a),
+		(s.prop24 = c);
+		// s.eVar25 = void 0 == b ? "" : e + "|" + b,
+		//(s.events = 'event30');
+		var g = s.t();
+		g && document.write(g);
+		//leave
+		var $selectores = $('a,p,span,li,button,.gsc-cursor-page');
+		$selectores.click(function() {
+			metrics.read($(this));
+		});
+		$(window).on('unload', function() {
+			Biblioteca.leave();
+		});
+		$('a').on('click', function() {
+			if ($(this).attr('target') == 'self') Biblioteca.leave();
+		});
+		$(window).scroll(function() {
+			Biblioteca.GetScrollMax();
+		});
+		var contador = 1;
+		$.each($('section'), function(i, v) {
+			var title = $(this)
+				.find('h2')
+				.first()
+				.text();
+			if (!$(this).attr('data-section') && title.trim() != '') {
+				var titulo = title.split(' ');
+				var contTitle = 1;
+				var section = '';
+				$.each(titulo, function(a, b) {
+					if (b.length >= 4) {
+						if (contTitle <= 3) {
+							section += b;
+							contTitle++;
+						}
+					}
+				});
+				if (contador == 1) {
+					$(this).attr('data-section', reemplazarAcentos('home'));
+				} else {
+					$(this).attr('data-section', reemplazarAcentos(section));
+				}
+			}
+			contador++;
+		});
+		$.each($('.MInteraction'), function(i, v) {
+			var inter = $(this).attr('metrics-general');
+			inter = inter.split(',');
+			if (inter[1] == undefined) {
+				inter[1] = s.pageName + '-Page interaction';
+			} else {
+				Biblioteca.isMobile
+					? (inter[1] += '-Mobile')
+					: (inter[1] += '-' + leng);
+			}
+			var ct = '")';
+			$(this).attr(
+				'onclick',
+				'readvars(\'' +
+          inter[0] +
+          '\');s.tl(this,"o","' +
+          s.pageName +
+          inter[1] +
+          ct
+			);
+		});
+		//==================================================================================================================
+		// INICIO DE LA FUNCTION PARA LA UTOMETRICA DE PREGUNTAS FRECUENTES
+		$.each($('[data-section=PreguntasFrecuentes] [aria-controls]'), function(
+			i,
+			v
+		) {
+			if (!$(this).attr('metrics-interaction')) {
+				var pregunta = $(this)
+					.text()
+					.trim()
+					.toLowerCase();
+				var palabras = pregunta.split(' ');
+				var metrica = '';
+				var contador = 0;
+				$.each(palabras, function(a, b) {
+					b = reemplazarAcentos(b);
+					b = b.replace('?', '');
+					b = b.replace('¿', '');
+					b = b.replace('®', '');
+					if (contador <= 3) {
+						if (b.length >= 5 && eliminarPalabra(b) != '') {
+							metrica += b.replace(',', '') + '_';
+							contador++;
+						}
+					}
+				});
+				metrica = metrica.substring(0, metrica.length - 1);
+
+				$(this).attr('metrics-interaction', '|PreguntasFrecuentes|' + metrica);
+			}
+		});
+		//FIN DE LA FUNCTION PARA LA AUTOMETRICA DE PREGUNTAS FRECUENTES
+		//==================================================================================================================
+		//==================================================================================================================
+		//INICIO DE LA FUNCTION PARA AUTOMETRICAR LOS BOTONES DE DESCARGAR ARCHIVOS PDF
+		$.each($('a[href]'), function(i, v) {
+			var link = $(this).attr('href');
+			var tipo = link.substring(link.length - 3, link.length);
+			var section = $(this)
+				.closest('section')
+				.attr('data-section');
+			var bandera = 0;
+			if (link.indexOf('.pdf') != -1) {
+				if (section === undefined) {
+					console.log('error de maquetacion para los botones de descarga PDF');
+					return;
+				}
+				if ($(this).children().length > 0) {
+					if (
+						!$(this)
+							.children()
+							.attr('metrics-download')
+					) {
+						$(this)
+							.children()
+							.attr('metrics-download', '|' + section + '|DescargaArchivo');
+						bandera = 1;
+					}
+				}
+				if (bandera == 0) {
+					if (!$(this).attr('metrics-download')) {
+						$(this).attr(
+							'metrics-download',
+							'|' + section + '|DescargaArchivo'
+						);
+						bandera = 0;
+					}
+				}
+			}
+		});
+		//FIN DE LA FUNCTION PARA AUTOMETRICAR LOS BOTONES DE DESCARGAR ARCHIVOS PDF
+		//==================================================================================================================
+		//==================================================================================================================
+		// // INICIO DE LA FUNCION PARA LA AUTOMETRICA DE LOS BOTONES COLLAPSE
+		$.each($('.button-content,.dft-btn-more'), function(i, v) {
+			// PRIMERO FORMA DONDE SE HACE EL BOTON COLLAPSE
+			if ($('.button-content').length > 0) {
+				if (!$(this).attr('metrics-interaction')) {
+					var tituloButton = $('.button-content')
+						.parent()
+						.text()
+						.trim()
+						.toLowerCase();
+					var palabrasButton = tituloButton.split(' ');
+					var metricasButton = '';
+					$.each(palabrasButton, function(a, b) {
+						if (b.length > 4) {
+							metricasButton += b + '_';
+						}
+					});
+					metricasButton = metricasButton.substring(
+						0,
+						metricasButton.length - 1
+					);
+					$(this).attr(
+						'metrics-interaction',
+						'|' + reemplazarAcentos(metricasButton)
+					);
+				}
+			}
+			// SEGUNDA FORMA DONDE SE HACE EL BOTON COLLAPSE
+			if ($('.dft-btn-more').length > 0) {
+				if (!$('.dft-btn-more').attr('metrics-interaction')) {
+					var text = $(this)
+						.find('[m-text-close]')
+						.attr('m-text-close');
+					var section = $(this)
+						.closest('[data-section]')
+						.attr('data-section');
+					$(this).attr(
+						'metrics-interaction',
+						'|' + section + '|' + text.replace(' ', '')
+					);
+				} else {
+					$(this).attr('d-metrica', 'list');
+				}
+			}
+		});
+		$('.dft-btn-more').click(function() {
+			if (!$(this).attr('d-metrica')) {
+				var metricAct = $(this).attr('metrics-interaction');
+				var close = $(this)
+					.find('[m-text-close]')
+					.attr('m-text-close')
+					.replace(' ', '');
+				var open = $(this)
+					.find('[m-text-open]')
+					.attr('m-text-open')
+					.replace(' ', '');
+				metri = metricAct.split('|');
+				var num = metri.length;
+				if (metri[num - 1] == close) {
+					metri[num - 1] = open;
+				} else {
+					metri[num - 1] = close;
+				}
+				var section = $(this)
+					.closest('[data-section]')
+					.attr('data-section');
+				$(this).attr(
+					'metrics-interaction',
+					'|' + section + '|' + metri[num - 1]
+				);
+			}
+		});
+		// FIN DE LA FUNCION DE LA AUTOMETRICA DE LOS BOTONES COLLAPSE
+		//==================================================================================================================
+		//==================================================================================================================
+		//INICIO DE LA FUNCION DE LA AUTOMETRICA DE LOS BOTONES DE CROSSCELL
+		$.each($('.card-module-item, .cbx-card[d-metrics=true]'), function(i, v) {
+			var tarjetas = '';
+			if ($(this).find('h3').length > 0) {
+				tarjeta = $(this)
+					.find('h3')
+					.text()
+					.trim();
+			} else if ($(this).find('h2').length > 0) {
+				tarjeta =
+          $(this)
+          	.find('h2')
+          	.text()
+          	.trim() + ' Citibanamex';
+			}
+			var title = reemplazarAcentos(tarjeta)
+				.replace('Citibanamex', '')
+				.replace(' ', '');
+			var numP = producto(tarjeta.replace('•', '').replace('®', ''));
+			$.each($(this).find('a'), function(a, b) {
+				var elementS = $(this);
+				var desk;
+				Biblioteca.isMobile ? (desk = '-Mobile') : (desk = '-' + leng);
+				if (!elementS.attr('metrics-lid')) {
+					var detalle = elementS.attr('href');
+					var detallePart = detalle.split('?');
+					var detalleML = '';
+					if (detallePart[1] == undefined) {
+						detalleML =
+              detalle +
+              '?TextoBottom-Acquisition-irSolicitud' +
+              title.replace('•', '') +
+              'Citibanamex' +
+              desk +
+              '&surcursal=8082&canal=16&pos=74009&idproducto=' +
+              numP +
+              '&empresa=363';
+					} else {
+						detalleML = detalle;
+					}
+					elementS.removeAttr('href');
+					elementS.attr('metrics-lid', detalleML);
+				} else {
+					var metrics_lid = elementS.attr('metrics-lid');
+					var partlid = metrics_lid.split('?');
+					elementS.attr(
+						'metrics-lid',
+						partlid[0] +
+              '?TextoBottom-Acquisition-irSolicitud' +
+              title.replace('•', '') +
+              'Citibanamex' +
+              desk +
+              partlid[1]
+					);
+				}
+			});
+			//---------------------------------
+			if (
+				$(this)
+					.find('button')
+					.attr('href')
+			) {
+				var elementB = $(this)
+					.find('button')
+					.attr('href');
+				var partsB = elementB.split('?');
+				var metricsB = '';
+				if (partsB[1] == undefined) {
+					metricsB =
+            partsB[0] +
+            '?surcursal=8082&canal=16&pos=74009&idproducto=' +
+            numP +
+            '&empresa=363&lid=' +
+            s.pageName +
+            '-Topbottom-irSolicitud' +
+            title.replace('•', '');
+				} else {
+					metricsB = elementB;
+				}
+				$(this)
+					.find('button')
+					.attr('href', metricsB);
+			}
+		});
+		//FIN DE LA FUNCION DE LA AUTOMETRICA DE LOS BOTONES DE CROSSCELL
+		//==================================================================================================================
+	},
+	read: function(element) {
+		var descarga = element.attr('metrics-download');
+		var inter = element.attr('metrics-interaction');
+		var conoce = element.attr('metrics-conoce');
+		var menusup = element.attr('metrics-menu-sup');
+		var menu = element.attr('metrics-menu');
+		var msocial = element.attr('metrics-social');
+		var buildlid = element.attr('metrics-lid');
+		if (typeof descarga !== typeof undefined) {
+			var link = '';
+			if (element.attr('href')) {
+				link = element.attr('href');
+			} else {
+				link = element.parent().attr('href');
+			}
+			var type;
+			Biblioteca.idMobile ? (type = 'Mobile') : (type = 'Desktop');
+			s.linkTrackVars = 'eVar27,prop36,prop10,events';
+			s.linkTrackEvents = 'event27';
+			s.eVar27 = s.pageName + '' + descarga;
+			s.events = 'event27';
+			s.prop36 = type;
+			s.prop10 = leng;
+			s.tl(this, 'd', 'https//www.banamex.com' + link);
+		} else if (typeof inter !== typeof undefined) {
+			inter = inter.split(',');
+			if (inter[1] == undefined) {
+				inter[1] = s.pageName + '-Page interaction';
+			} else {
+				Biblioteca.isMobile
+					? (inter[1] += '-Mobile')
+					: (inter[1] += '-' + leng);
+			}
+			param.event = 'event30';
+			param.cadena = inter[0];
+			param.send = inter[1];
+			param.evar = 25;
+			param.action = 'o';
+			Biblioteca.stl = param;
+		} else if (typeof conoce !== typeof undefined) {
+			param.event = 'event17';
+			param.cadena = conoce;
+			param.send = 'MX|Personas-Tarjetas-Requisitos';
+			param.evar = 25;
+			param.action = 'o';
+			Biblioteca.stl = param;
+		} else if (typeof menu !== typeof undefined) {
+			menu = menu.split(',');
+			param.pagename = false;
+			param.event = 'event30';
+			param.cadena = menu[0];
+			param.send = menu[1];
+			param.evar = 25;
+			param.action = 'o';
+			Biblioteca.stl = param;
+		} else if (typeof menusup !== typeof undefined) {
+			menusup = menusup.split(',');
+			var supmenu = menusup[0].split('-');
+			var menudef = $('.nav-bottom-content__item.active')
+				.find('p')
+				.html();
+			menudef == undefined ? (menudef = 'sin_menu_superior') : menudef;
+			param.pagename = false;
+			param.event = 'event30';
+			param.cadena = supmenu[0] + '-' + menudef + '-' + supmenu[1];
+			param.send = menusup[1];
+			param.evar = 25;
+			param.action = 'o';
+			Biblioteca.stl = param;
+		} else if (typeof msocial !== typeof undefined) {
+			msocial = msocial.split(',');
+			param.event = 'event30';
+			param.cadena = msocial[0];
+			param.send = s.pageName + msocial[1];
+			param.evar = 25;
+			param.action = 'o';
+			Biblioteca.stl = param;
+		} else if (typeof buildlid !== typeof undefined) {
+			buildlid = buildlid.split('?');
+			var desk;
+			Biblioteca.isMobile ? (desk = '-Mobile') : (desk = '-' + leng);
+			var link = '';
+			if (buildlid[1].indexOf(desk) == -1) {
+				link = buildlid[0] + '?lid=' + s.pageName + '-' + buildlid[1] + desk;
+			} else {
+				link = buildlid[0] + '?lid=' + s.pageName + '-' + buildlid[1];
+			}
+
+		// 	if (
+		// 		link.toLocaleLowerCase().indexOf('ecid=') == -1 &&
+        // link.indexOf('idproducto') != -1 &&
+        // window.location.href.indexOf('ecid=') != -1
+		// 	) {
+		// 		link += '&ecid=' + getParameterByName('ecid');
+		// 	}
+
+			window.open(link, '_blank');
+		}
+	},
+	reset: function() {
+		(s.channel = ''),
+		(s.prop1 = ''),
+		(s.prop2 = ''),
+		(s.prop3 = ''),
+		(s.prop10 = ''),
+		(s.prop24 = ''),
+		(s.eVar12 = ''),
+		(s.eVar25 = ''),
+		(s.eVar43 = ''),
+		(s.events = ''),
+		(s.eVar46 = ''),
+		(s.eVar27 = ''),
+		(s.eVar92 = ''),
+		(param.st = !1);
+	}
+};
+
+var Biblioteca = {
+	observer: null,
+	desk: [],
+	scrollmax: 0,
+	scroll: false,
+	isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+		navigator.userAgent
+	)
+		? true
+		: false,
+	acciones: function(action, selector, estructura) {
+		switch (action) {
+		case 'click':
+			$('.' + selector + '').on('click', function() {
+				Biblioteca.send(estructura);
+			});
+			break;
+		case 'load':
+			biblioteca.load();
+			break;
+		}
+	},
+	loadEvent: function(a, b, c, d, e, f) {
+		switch (b) {
+		case 'click':
+			$('.' + a + '').on('click', function() {
+				param.variables = c;
+				param.event = d;
+				param.cadena = e;
+				param.send = s.pageName + '-Page interaction';
+				param.evar = 25;
+				param.action = f;
+				Biblioteca.stl = param;
+			});
+			break;
+		case 'hover':
+			$('.' + a + '')
+				.mouseout(function() {
+					clearTimeout(timerv);
+				})
+				.mouseover(function() {
+					timerv = setTimeout(function() {
+						param.variables = c;
+						param.event = d;
+						param.cadena = e;
+						param.send = s.pageName + '-Page interaction';
+						param.evar = 25;
+						param.action = f;
+						Biblioteca.stl = param;
+					}, 800);
+				});
+			break;
+		case 'Hover':
+			$('.' + a + '').hover(function() {
+				param.variables = c;
+				param.event = d;
+				param.cadena = e;
+				param.send = s.pageName + '-Page interaction';
+				param.evar = 25;
+				param.action = f;
+				Biblioteca.stl = param;
+			});
+			break;
+		case 'dropDoble':
+			$('.' + a + '').change(function() {
+				param.variables = c;
+				param.event = d;
+				param.cadena =
+            e +
+            '|' +
+            $('.' + a + ' option:selected')
+            	.eq(0)
+            	.html() +
+            '|' +
+            $('.' + a + ' option:selected')
+            	.eq(1)
+            	.html();
+				param.send = s.pageName + '-Page interaction';
+				param.evar = 25;
+				param.action = f;
+				Biblioteca.stl = param;
+			});
+			break;
+		case 'capturaInit':
+			$('.' + a + '').keypress(function() {
+				param.variables = c;
+				param.event = d;
+				param.cadena = e;
+				param.send = s.pageName + '-Page interaction';
+				param.evar = 25;
+				param.action = f;
+				Biblioteca.stl = param;
+				$(this).unbind();
+			});
+			break;
+		}
+	},
+	builLid: function() {
+		$.each($('.lid'), function(i, l) {
+			var r = $(this).attr('href');
+			if(r != undefined) {
+				Biblioteca.isMobile
+					? (r = r.replace('ES/', ''))
+					: (r = r.replace('/Mobile', ''));
+				r = r.replace('s.pageName', s.pageName);
+			// 	if (
+			// 		r.toLocaleLowerCase().indexOf('ecid') == -1 &&
+			// r.indexOf('idproducto') != -1 &&
+			// window.location.href.indexOf('ecid=') != -1
+			// 	) {
+			// 		r += '&ecid=' + getParameterByName('ecid');
+			// 	}
+              
+				$(this).attr('href', r);
+			}
+		});
+	},
+	load: function() {
+	// 	var options = {
+	// 		root: null,
+	// 		rootMargin: '0px',
+	// 		threshold: [0, 0.3]
+	// 	};
+	// 	Biblioteca.observer = new IntersectionObserver(handleIntersect, options);
+	// 	var ind = 1;
+	// 	var sectionHolder = $('body').attr('data-section-holder');
+	// 	if (
+	// 		sectionHolder == '' ||
+		//   sectionHolder == undefined ||
+		//   sectionHolder == null
+	// 	) {
+	// 		sectionHolder = 'body';
+	// 	}
+	// 	$.each($(sectionHolder + '>section'), function(i, l) {
+	// 		if ($(this).attr('data-section') != undefined) {
+	// 			console.log('heres');
+	// 			$(this).addClass('desk' + ind + '');
+	// 			$(this).attr('section-index', ind);
+	// 			Biblioteca.observer.observe(document.querySelector('.desk' + ind + ''));
+	// 			ind += 1;
+	// 			clearTimeout(sendmetric);
+	// 		}
+	// 	});
+	// 	$(window).scroll(function() {
+	// 		Biblioteca.scroll = true;
+	// 		// $(this).unbind()
+	// 	});
+	// 	// var boxElement = document.querySelector("#promociones");
+	// 	// this.observer.observe(boxElement);
+	},
+	GetScrollMax: function() {
+		var a;
+		if ('scrollMaxX' in window) a = window.scrollMaxY;
+		else {
+			var b =
+        document.documentElement.scrollHeight -
+        document.documentElement.clientHeight;
+			a = b;
+		}
+		var c = $(window).scrollTop(),
+			d = (100 * c) / a;
+		if ((d > this.scrollmax && (this.scrollmax = d), !param.centroAyuda)) {
+			var e = 30.49;
+			if (d > e) Biblioteca.scrollmaxHelp = 100;
+			else {
+				var f = (30.49 * a) / 100;
+				Biblioteca.scrollmaxHelp = (100 * c) / f;
+			}
+		}
+	},
+	leave: function() {
+		// (param.variables = 'eVar25,events'),
+		// (param.event = 'event30'),
+		// (param.cadena = '|Scroll|' + Math.round(this.scrollmax)),
+		// (param.send = s.pageName + '-Page Interaction'),
+		// (param.evar = 25),
+		// (param.action = 'o'),
+		// (Biblioteca.stl = param);
+	},
+	sendSixSeconds: function(elemento) {
+		// sendmetric = setTimeout(function() {
+		// 	// console.log($(elemento).attr("data-section"))
+		// 	Biblioteca.observer.unobserve(elemento);
+		// 	(param.variables = 'eVar25,events'),
+		// 	(param.event = 'event30'),
+		// 	(param.cadena =
+		//   '|' +
+		//   $(elemento).attr('section-index') +
+		//   '|' +
+		//   $(elemento).attr('data-section')),
+		// 	(param.send = s.pageName + '-Page interaction'),
+		// 	(param.evar = 25),
+		// 	(Biblioteca.stl = param),
+		// 	(param.action = 'o');
+		// }, 6e3);
+	},
+	set stl(a) {
+		var b = s.pageName;
+		switch ((a.pagename || ((b = ''), (a.pagename = !0)), a.evar)) {
+		case 25:
+			(s.eVar25 = b + a.cadena), (a.variables = 'eVar25,events');
+			break;
+		case 27:
+			(s.eVar27 = b + a.cadena), (a.variables = 'eVar27,events');
+			break;
+		case 46:
+			(s.eVar46 = b + a.cadena), (a.variables = 'eVar46,events');
+			break;
+		case 55:
+			(s.eVar55 = a.cadena), (a.variables = 'eVar55,events');
+			break;
+		case 12:
+			(s.eVar12 = a.cadena), (a.variables = 'eVar12,events');
+			break;
+		case 4:
+			(s.eVar4 = a.cadena), (a.variables = 'eVar4,events');
+			break;
+		}
+		(s.linkTrackVars = a.variables),
+		(s.linkTrackEvents = a.event),
+		(s.events = a.event),
+		a.st ? s.t() : s.tl(this, a.action, a.send),
+		Biblioteca.reset();
+	},
+	reset: function() {
+		(s.channel = ''),
+		(s.prop1 = ''),
+		(s.prop2 = ''),
+		(s.prop3 = ''),
+		(s.prop10 = ''),
+		(s.prop24 = ''),
+		(s.eVar12 = ''),
+		(s.eVar25 = ''),
+		(s.eVar43 = ''),
+		(s.events = ''),
+		(s.eVar46 = ''),
+		(s.eVar27 = ''),
+		(s.eVar92 = ''),
+		(param.st = !1);
+	}
+};
+
+param = {
+	variables: '',
+	event: '',
+	cadena: '',
+	send: '',
+	evar: '',
+	action: 'o',
+	pagename: !0,
+	centroAyuda: false,
+	st: !1
+};
+
+metrics.load();
+if ($('body').attr('metric-dynamic')) {
+	setTimeout(function() {
+		Biblioteca.load();
+	}, 2000);
+} else {
+	Biblioteca.load();
+}
+
+// function handleIntersect(entries, observer) {
+// 	$.each(entries, function(index, entry) {
+// 		if (entry.isIntersecting) {
+// 			if (entry.boundingClientRect.bottom == entry.boundingClientRect.height) {
+// 				clearTimeout(sendmetric);
+// 				Biblioteca.sendSixSeconds(entry.target);
+// 				return false;
+// 			} else {
+// 				if (entry.intersectionRatio > 0.3) {
+// 					clearTimeout(sendmetric);
+// 					Biblioteca.sendSixSeconds(entry.target);
+// 				}
+// 			}
+// 		}
+// 	});
+// }
+
+function metrica(
+	elemento,
+	accion,
+	TrackVars,
+	TrackEvent,
+	cuerpo,
+	action,
+	sendStl,
+	evar
+) {
+	this.elemento = elemento;
+	this.accion = accion;
+	this.TrackVars = TrackVars;
+	this.TrackEvent = TrackEvent;
+	this.cuerpo = cuerpo;
+	this.action = action;
+	this.sendStl = sendStl;
+	this.evar = evar;
+	this.load = function() {
+		Biblioteca.loadEvent(
+			this.elemento,
+			this.accion,
+			this.TrackVars,
+			this.TrackEvent,
+			this.cuerpo,
+			this.action
+		);
+	};
+	this.evento = function() {
+		// Biblioteca.waitEvent(this.elemento,this.accion,this.TrackVars,this.TrackEvent,this.cuerpo,this.action,this.sendStl)
+		param.variables = this.TrackVars;
+		param.event = this.TrackEvent;
+		param.cadena = this.cuerpo;
+		param.send = s.pageName + this.sendStl;
+		param.evar = parseInt(this.evar);
+		param.action = this.action;
+		Biblioteca.stl = param;
+	};
+}
+
+$('[m-exit]').on('click', function() {
+	var json = '';
+	json = JSON.parse($(this).attr('m-exit'));
+	var fin = 'Desktop';
+	var ex = 'ES';
+	if (Biblioteca.isMobile) {
+		fin = 'Mobile';
+		ex = 'MOBILE';
+	}
+	if ($(this).closest('footer').length > 0) {
+		var sectionF = '-Footer-';
+		$('.cbx-exit')
+			.find('a')
+			.one('click', function() {
+				s.linkTrackVars = 'prop36,prop10';
+				s.prop36 = fin;
+				s.prop10 = 'ES';
+				s.tl(
+					this,
+					'e',
+					s.pageName + '' + sectionF + '' + json.sponsor + '-Click'
+				);
+
+				Biblioteca.reset();
+			});
+	} else {
+		if (json.metrics) {
+			$('.cbx-exit')
+				.find('a')
+				.attr(
+					'onclick',
+					's.tl(this,\'e\',\'' + s.pageName + '-' + json.metrics + '-' + ex + '\')'
+				);
+			Biblioteca.reset();
+		} else {
+			$('.cbx-exit')
+				.find('a')
+				.removeAttr('onclick');
+
+			var section = $(this)
+				.closest('section')
+				.attr('data-section');
+
+			if (json.sponsor == 'App Store' || json.sponsor == 'Play Store') {
+				$('.cbx-exit')
+					.find('a')
+					.one('click', function() {
+						var nameApp = json.sponsor;
+						s.linkTrackVars = 'prop36,prop10,';
+						s.prop36 = fin;
+						s.prop10 = 'ES';
+						s.tl(
+							this,
+							'e',
+							s.pageName + '-' + section + '-' + nameApp + '-Click'
+						);
+					});
+			}
+		}
+	}
+});
+Biblioteca.builLid();
+
+var homeM = {
+	wallet: true,
+	citiapp: true,
+	when: '-auto',
+	init: function() {},
+	destacado: function(that) {
+		var number = parseInt($(that).attr('data-slick-index'));
+		var slide = $('.hero-dmp article[data-slick-index=\'' + (number - 1) + '\']');
+		var word = '';
+
+		$.each(
+			$(slide)
+				.find('.dft-category')
+				.text()
+				.split(' '),
+			function(index, value) {
+				var capitalLetter = value.substr(0, 1).toLocaleUpperCase();
+				console.log(capitalLetter);
+				word += value
+					.toLocaleLowerCase()
+					.replace(value.toLocaleLowerCase().substr(0, 1), capitalLetter);
+			}
+		);
+		console.log(word);
+		s.linkTrackVars = 'eVar25,events';
+		s.linkTrackEvents = 'event30';
+		s.eVar25 = s.pageName + '|Carrousel|' + number + '|' + word;
+		s.events = 'event30';
+		s.tl(this, 'o', s.pageName + '-PageInteraction');
+	},
+	menu: function(menu, menu2) {
+		s.eVar25 = menu2;
+		s.linkTrackVars = 'eVar25,events';
+		s.linkTrackEvents = 'event17';
+		s.events = 'event17';
+		s.tl(this, 'o', 'Servicios en Linea | Avatar |' + menu + '');
+		metrics.reset();
+	},
+	sendsocial: function(red) {
+		s.linkTrackVars = 'eVar46,events';
+		s.linkTrackEvents = 'event33';
+		s.eVar46 = s.pageName + red;
+		s.events = 'event33';
+		s.tl(this, 'o', s.pageName + '- Social Interactions');
+		metrics.reset();
+	},
+	sendinteraction: function(name25) {
+		s.linkTrackVars = 'eVar25,events';
+		s.linkTrackEvents = 'event30';
+		s.eVar25 = s.pageName + '|' + name25;
+		s.events = 'event30';
+		s.tl(this, 'o', s.pageName + '-Page Interaction');
+		metrics.reset();
+	},
+	sendwallet: function(t) {
+		var app = '';
+		if ((t = '1' && homeM.citiapp)) {
+			app = 'CitibanamexPay';
+			homeM.citiapp = false;
+		} else if ((t = '0' && homeM.wallet)) {
+			app = 'Citibanamexmovil';
+			homeM.wallet = false;
+		} else {
+			return false;
+		}
+		s.linkTrackVars = 'eVar25,events';
+		s.linkTrackEvents = 'event30';
+		s.eVar25 = s.pageName + '|Nuestraapp|' + app;
+		s.events = 'event30';
+		s.tl(this, 'o', s.pageName + '- Page Interaction');
+		metrics.reset();
+	},
+	sendApp: function(nameApp, num) {
+		var section = $('#' + nameApp + '' + num)
+			.closest('section')
+			.attr('data-section');
+		console.log(section);
+		if (metrics.mobile) {
+			mb = 'Mobile';
+		} else {
+			mb = 'Desktop';
+		}
+		s.linkTrackVars = 'prop36,prop10,';
+		s.prop36 = mb;
+		s.prop10 = leng;
+		s.tl(this, 'e', s.pageName + '-' + section + '-' + nameApp + '-Click');
+		// s.tl(this,'e',s.pageName+'-TextoBottom-'+fecha+'-Descarga-' + nameApp + mb);
+		metrics.reset();
+	}
+};
+
+var formM = {
+	inicioCaptura: true,
+	cadenasend: [],
+	sendError: function(clases) {
+		var errores = '';
+		var clas = clases.split('|');
+		$.each(clas, function(i, v) {
+			$.each($('.' + v + ''), function(i, v) {
+				if (
+					$(this)
+						.parent()
+						.hasClass('has-error') ||
+          $(this).hasClass('has-error')
+				) {
+					var error = '|' + $(this).attr('metrics-error');
+					errores += error;
+				}
+			});
+		});
+		param.event = 'event55';
+		param.cadena = errores;
+		param.evar = 55;
+		param.action = 'o';
+		param.st = true;
+		metrics.stl = param;
+	},
+	sendEnd: function(cadena) {
+		s.pageName = cadena[0];
+		s.channel = '';
+		s.prop1 = '';
+		s.prop2 = '';
+		s.prop3 = '';
+		s.prop10 = cadena[1];
+		s.events = cadena[2];
+		s.eVar34 = cadena[3];
+		var s_code = s.t();
+	},
+	InicioCaptura: function(captura) {
+		captura = captura.split(',');
+		if (this.inicioCaptura) {
+			this.inicioCaptura = false;
+			param.variables = 'eVar25,events';
+			param.event = 'event49';
+			param.cadena = captura[0];
+			param.evar = 25;
+			param.action = 'o';
+			param.send = captura[1];
+			metrics.stl = param;
+		}
+	}
+};
+
+function endMetric(pagename, leng, event, param) {
+	param = param.split(',');
+	this.pagename = pagename;
+	this.leng = leng;
+	this.event = event;
+	this.genera = function() {
+		var datos = [];
+		datos.push(this.pagename);
+		datos.push(this.leng);
+		datos.push(this.event);
+		var temp = '';
+		$.each(param, function(i, v) {
+			temp += v + '|';
+		});
+		datos.push(temp);
+		formM.sendEnd(datos);
+	};
+}
+
+function readvars(p25) {
+	s.linkTrackVars = 'eVar25,events';
+	s.linkTrackEvents = 'event30';
+	s.eVar25 = s.pageName + p25;
+	s.events = 'event30';
+}
+
+function reemplazarAcentos(cadena) {
+	var chars = {
+		á: 'a',
+		é: 'e',
+		í: 'i',
+		ó: 'o',
+		ú: 'u',
+		à: 'a',
+		è: 'e',
+		ì: 'i',
+		ò: 'o',
+		ù: 'u',
+		ñ: 'n',
+		Á: 'A',
+		É: 'E',
+		Í: 'I',
+		Ó: 'O',
+		Ú: 'U',
+		À: 'A',
+		È: 'E',
+		Ì: 'I',
+		Ò: 'O',
+		Ù: 'U',
+		Ñ: 'N'
+	};
+	var expr = /[áàéèíìóòúùñ]/gi;
+	var res = cadena.replace(expr, function(e) {
+		return chars[e];
+	});
+	return res;
+}
+
+function eliminarPalabra(cadena) {
+	var palabras = [
+		'donde',
+		'quien',
+		'que',
+		'porque',
+		'cual',
+		'cuando',
+		'cuales'
+	];
+	$.each(palabras, function(v, i) {
+		if (i == cadena.toLowerCase()) {
+			cadena = '';
+		}
+	});
+	return cadena;
+}
+
+function producto(prod) {
+	var productos = {
+		'clasica citibanamex': '130217',
+		'oro citibanamex': '222577',
+		'bsmart citibanamex': '410251',
+		'bsmart first citibanamex': '430623',
+		'platinum citibanam0ex': '530257',
+		'citibanamex rewards': '620220',
+		'citibanamex premier': '640181',
+		'citi / aadvantage': '810474',
+		'best buy citibanamex': '110635',
+		costco: '920270',
+		'office depot citibanamex': '913477',
+		'affinity card citibanamex': '914449',
+		'the home depot citibanamex': '910552',
+		'marti clasica citibanamex': '911539',
+		'marti premium citibanamex': '912536',
+		'america deporteismo': '950206',
+		'la verde deporteismo': '959505',
+		'pumas deporteismo': '954211',
+		'toluca deporteismo': '956210',
+		'teleton citibanamex': '941485'
+	};
+	return productos[reemplazarAcentos(prod.toLowerCase())];
+}
+
+
+// heredar parámetros de ecid 
+$(window).on('load', function() {
+
+	var url = window.location.href,
+		ecid = url.split('ecid')[1],
+		empresa = url.split('empresa')[1], 
+		pos = url.split('pos')[1],
+		urlSolicitud = '/solicita-tu-tarjeta-credito-en-linea/index.html',
+		customLink = '',
+        gclid = url.split('gclid')[1];
+  
+  	if(empresa == undefined || pos == undefined) {
+            empresa = '=109';
+            pos = '=74013&empresa=109'
+       }
+
+	
+
+	if( url.indexOf('ecid') != -1 ) {
+
+		$('a[metrics-lid], a[tmp-metrics-lid], a[href]').each(function() {
+
+			var href = $(this).attr('href'),
+				metricsLid = $(this).attr('metrics-lid'),
+				tmpMetrics = $(this).attr('tmp-metrics-lid'),
+				lid = '';
+
+			if(href) {
+
+				if(href.indexOf(urlSolicitud) != -1) {
+					lid = $(this).attr('href');
+					cambiarParam(lid);
+					$(this).attr('href', customLink);
+					$(this).attr('target', '_blank')
+				}	
+			}
+			if(metricsLid) {
+
+				if(metricsLid.indexOf(urlSolicitud) != -1) {
+					lid = $(this).attr('metrics-lid');
+					cambiarParam(lid);
+					$(this).removeAttr('metrics-lid')
+					$(this).attr('href', customLink);
+					$(this).attr('target', '_blank')
+				}
+			}
+			if(tmpMetrics) {
+
+				if(tmpMetrics.indexOf(urlSolicitud) != -1) {
+					lid = $(this).attr('tmp-metrics-lid');
+					cambiarParam(lid);
+					$(this).removeAttr('tmp-metrics-lid')
+					$(this).attr('href', customLink);
+					$(this).attr('target', '_blank')
+				}  
+			}
+		});  
+		
+	} else {
+		//console.log('no contiene ecid');
+	}
+
+	function validaString(string){
+
+		if( string != undefined ){
+			var newString = '';
+			if(string.indexOf('&') != -1){
+			newString = string.split('&')[0];
+			newString = newString.replace('=','');
+			}else{
+				newString = string;
+				newString = newString.replace('=','');
+			}
+		}
+	
+		return newString;
+	}
+
+	function cambiarParam(lid) {
+
+		var link = '',
+		metric = '',
+		array = new Array();
+		
+		link = lid.split('?')[0],
+		metric = lid.split('?')[1]
+		array = metric.split('&');
+
+		for(var i=0; i<array.length;i++ ) {
+
+			if(i == 0){
+
+				array[i] = 'ecid='+validaString(ecid);
+
+			} else {
+
+				if( array[i].match('pos') ){
+					array[i] = 'pos='+validaString(pos);
+				}else if( array[i].match('empresa') ){
+					array[i] = 'empresa='+validaString(empresa);
+				}else if( array[i].match('lid=') ){
+					array.splice( i, 1 );
+				}
+			}
+		}
+      
+      
+      if(gclid != undefined) {
+            customLink = link+'?'+array.toString().replace(/,/g, '&') + '&gclid'+gclid;
+        } else {
+            customLink = link+'?'+array.toString().replace(/,/g, '&');
+        }
+
+	}
+});
+
+//INICIO DEL OBJETO PARA LA IMPLEMENTACION DE PIXELES
+
+var sendPixel = {
+	registroInicioCaptura:function(){},
+  	registroCompletado:function(){},
+  	params:{}
+}
+

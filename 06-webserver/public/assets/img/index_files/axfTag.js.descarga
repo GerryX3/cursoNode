@@ -1,0 +1,19 @@
+var enviroment_ens;
+
+if(location.hostname === "www.banamex.com" || location.hostname === "portal.banamex.com.mx")
+  enviroment_ens = "prod";
+else
+  enviroment_ens = "stage";
+
+if(location.hostname != "boveda.banamex.com.mx"){
+  var mbox = document.createElement('script'),
+  ensig = document.createElement('script');
+
+  ensig.setAttribute('type', 'text/javascript');
+  ensig.setAttribute('src', "//nexus.ensighten.com/citi/mex_"+enviroment_ens+"/Bootstrap.js");
+  document.getElementsByTagName('head')[0].appendChild(ensig);
+
+  /*mbox.setAttribute('type', 'text/javascript');
+  mbox.setAttribute('src', '/assets/js/mbox.js');
+  document.getElementsByTagName('head')[0].appendChild(mbox);*/
+}

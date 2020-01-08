@@ -1,0 +1,48 @@
+function isInput( input ){
+    input.addEventListener('input', function(){
+        if(this.value == ''){
+            isEmpty( true, this );
+        }else{
+            isEmpty( false, this );
+        }
+    });
+}
+function isSelect( select ){
+    select.addEventListener('change', function(){
+        if( this.selectedIndex == 0){
+            isEmpty( true, this); 
+        }else{
+            isEmpty( false, this );
+        }
+    });
+}
+
+function isEmpty( value, field ){
+    if( value ){
+        field.setAttribute('m-empty', true);
+    }else{
+        field.setAttribute('m-empty', false);
+    }
+}
+
+var 
+    fields = [ 'input', 'select' ],
+    selector = '',
+    typeField = '';
+
+for (var i = 0; i < fields.length; i++) {
+    selector = document.querySelectorAll('.dft-'+fields[i]+' '+fields[i]+'[m-empty]' );
+    typeField = fields[i];
+    for(var j = 0; j < selector.length; j++){
+        if( selector[j].nodeName.toLowerCase() == 'input'){
+            isInput(selector[j]);
+        }else if(selector[j].nodeName.toLowerCase() == 'select' ){
+            isSelect(selector[j]);
+        }
+    }
+}
+
+
+
+
+
