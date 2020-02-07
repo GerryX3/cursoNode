@@ -42,8 +42,9 @@ class TicketControl extends mongoose.model('TicketControl', ticketControlSchema)
         return new Promise((resolve, reject) => {
             TicketControl.findOne()
                 .sort({ 'created_at': -1 })
-                .populate('ultimo')
-                .populate('tickets')
+                .populate({path:'ultimo',model:'Ticket'})
+                .populate({path:'tickets',model:'Ticket'})
+                .populate({path:'ultimos4',model:'Ticket'})
                 .exec(async(err, post) => {
                     if (err) {
                         reject(err);
@@ -51,54 +52,92 @@ class TicketControl extends mongoose.model('TicketControl', ticketControlSchema)
                     if (post && _this.hoy === post.hoy) {
                         resolve(post);
                     } else {
-                        _this.ultimo = new Ticket(0, null);
-                        await _this.ultimo.save()
-                        _this.save((err, ticketSaved) => {
-                            if (err) {
-                                reject(err);
-                            } else {
-                                console.info('Se a inicializado el sistema');
-                                resolve(ticketSaved);
-                            }
-                        });
+                        let newTicketControl = await _this.save();
+                        console.info('Se a inicializado el sistema');
+                        resolve(newTicketControl);
                     }
                 });
 
         })
     }
 
+    async getUltimos4(){
+        let ticket = await TicketControl.getLastTicket();
+        return ticket.ultimos4;
+
+    }
+
     async getActualTicket() {
         let ticket = await TicketControl.getLastTicket();
-        return `Ticket ${ticket.ultimo.numero}`;
+        return new Promise((resolve,reject)=>{
+            TicketControl.populate(ticket,{path:'ultimo',model: 'Ticket'}, (err,ticketPopulated)=>{
+                if(err){
+                    reject(err)
+                }else{
+                    if(ticketPopulated.ultimo){
+                        resolve(`Ticket ${ticketPopulated.ultimo.numero}`);
+                    }else{
+                        resolve(`Ticket 0`);
+                    }
+                }
+            });
+        });
     }
 
     async assignTicket(desktop) {
-        let ticketControl = await TicketControl.getLastTicket();
-        if (ticketControl.tickets.length === 0) {
-            return `No hay tickets`
-        }
-        let ticket = ticketControl.tickets.shift();
+        let ticket = await TicketControl.getLastTicket();
+        return new Promise(async (resolve,reject)=>{
+            TicketControl.populate(ticket,[{path:'tickets',model: 'Ticket'},{path:'ultimos4',model: 'Ticket'}],async (err,ticketPopulated)=>{
 
-        ticket.escritorio = desktop;
-        console.log(ticket);
-        await ticket.save();
-        ticketControl.ultimos4.unshift(ticket);
-        if (ticketControl.ultimos4.length > 4) {
-            ticketControl.ultimos4.pop();
-        }
-        console.log('Ultimos: ', ticketControl.ultimos4);
-        await ticketControl.save();
+                if(err){
+                    reject(err);
+                }else{
+                    if (ticketPopulated.tickets.length === 0) {
+                        resolve (`No hay tickets`)
+                    }else{
 
-        return ticket;
+                        let ticket = ticketPopulated.tickets.shift();
+                
+                        ticket.escritorio = desktop;
+                        await ticket.save();
+                        ticketPopulated.ultimos4.unshift(ticket);
+                        if (ticketPopulated.ultimos4.length > 4) {
+                            ticketPopulated.ultimos4.pop();
+                        }
+                        await ticketPopulated.save();
+                
+                        resolve(ticket);
+                    }
+                
+                }
+
+            
+            });
+
+
+        });
     }
 
     async nextTicket() {
-        let ticketControl = await TicketControl.getLastTicket();
-        ticketControl.ultimo = new Ticket(this.ultimo.numero + 1, null);
-        await ticketControl.ultimo.save();
-        ticketControl.tickets.push(ticketControl.ultimo);
-        let resp = await ticketControl.save();
-        return resp;
+        let ticket = await TicketControl.getLastTicket();
+        return new Promise((resolve,reject)=>{
+            TicketControl.populate(ticket,{path:'ultimo',model: 'Ticket'},async (err,tickedPopulated)=>{
+                if(err){
+                    reject(err);
+                }else{
+                    if(!tickedPopulated.ultimo){
+                        tickedPopulated.ultimo = new Ticket(0, null);
+                    }
+                    tickedPopulated.ultimo = new Ticket(tickedPopulated.ultimo.numero + 1, null);
+                    await tickedPopulated.ultimo.save();
+                    tickedPopulated.tickets.push(tickedPopulated.ultimo);
+                    await tickedPopulated.save();
+                    resolve( `Ticket ${tickedPopulated.ultimo.numero}`);
+                }
+
+            });
+            
+        });
     }
 
 
@@ -108,10 +147,13 @@ class TicketControl extends mongoose.model('TicketControl', ticketControlSchema)
                 if (err) {
                     reject(err);
                 } else {
-                    if (!ticketSaved.ultimo) {
-                        ticketSaved.ultimo = new Ticket(0, null);
-                    }
-                    resolve(`Ticket ${ticketSaved.ultimo.numero}`);
+                    TicketControl.populate(ticketSaved,[{path:'ultimo',model: 'Ticket'},{path:'tickets',model: 'Ticket'}],(err,tickedPopulated)=>{
+                        if(err){
+                            reject(err);
+                        }else{
+                            resolve(tickedPopulated);
+                        }
+                    });
                 }
             });
         });

@@ -19,10 +19,11 @@ async function main() {
         });
 
         client.emit('actualTicket', {
-            actual: await ticket1.getActualTicket()
+            actual: await ticket1.getActualTicket(),
+            ultimos4: await ticket1.getUltimos4()
         });
 
-        client.on('assignTicket', (data, callback) => {
+        client.on('assignTicket', async (data, callback) => {
             if (!data.escritorio) {
                 return callback({
                     err: true,
@@ -30,9 +31,14 @@ async function main() {
                 });
             }
 
-            let ticket = ticket1.assignTicket(data.escritorio);
+            let ticket = await ticket1.assignTicket(data.escritorio);
 
             callback(ticket);
+
+            client.broadcast.emit('ultimos4', {
+                actual: await ticket1.getActualTicket(),
+                ultimos4: await ticket1.getUltimos4()
+            });
         });
 
     });

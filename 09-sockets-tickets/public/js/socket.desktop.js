@@ -2,6 +2,7 @@ var socket = io();
 
 socket.on('connect', function() {
     console.log('Conectado al servidor');
+
 });
 
 socket.on('disconnect', function() {
@@ -23,6 +24,11 @@ $('h1').text('Escritorio ' + escritorio);
 
 $('button').on('click', function() {
     socket.emit('assignTicket', { escritorio: escritorio }, function(resp) {
-        console.log(resp);
+        if(resp.numero){
+            label.text('Ticket '+ resp.numero);
+        }else{
+            label.text(resp);
+           alert(resp);
+        }
     });
 });
